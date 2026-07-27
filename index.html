@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Roboto+Slab:wght@700&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#eef0f2;font-family:'Roboto',Arial,system-ui,sans-serif;color:#1f2328}
+a{color:#2456a6;text-decoration:none}a:hover{color:#1a3f7d;text-decoration:underline}
+.mono{font-family:ui-monospace,Menlo,monospace}
+::-webkit-scrollbar{width:11px;height:11px}::-webkit-scrollbar-thumb{background:#c3ccd6;border-radius:6px}::-webkit-scrollbar-track{background:#eef0f2}
+</style>
+</helmet>
+
+<div style="min-height:100vh;display:flex;flex-direction:column;background:#eef0f2">
+
+  <!-- ===== GT HEADER ===== -->
+  <div style="display:flex;align-items:center;gap:16px;padding:0 26px;height:78px;background:linear-gradient(180deg,#b3a06a 0%,#9a8548 100%);color:#fff;box-shadow:inset 0 -3px 0 rgba(0,0,0,.12)">
+    <div style="display:grid;grid-template-columns:repeat(2,7px);grid-auto-rows:7px;gap:3px;opacity:.85">
+      <div style="background:#fff"></div><div style="background:#fff"></div><div style="background:#fff"></div><div style="background:#fff"></div><div style="background:#fff"></div><div style="background:#fff"></div>
+    </div>
+    <div style="font-family:'Roboto Slab',Georgia,serif;font-weight:700;font-size:30px;letter-spacing:.5px;display:flex;align-items:center;gap:11px">
+      <span style="border:3px solid #fff;border-radius:5px;padding:1px 7px;font-size:22px;line-height:1">GT</span>Georgia Tech
+    </div>
+    <div style="margin-left:auto;display:flex;align-items:center;gap:20px;font-size:16px">
+      <span style="opacity:.9;font-size:20px">⚙</span>
+      <span style="width:30px;height:30px;border-radius:50%;border:2px solid rgba(255,255,255,.8);display:flex;align-items:center;justify-content:center;font-size:15px">☺</span>
+      <span style="font-weight:500">George P. Burdell · MSCS</span>
+    </div>
+  </div>
+
+  <!-- ===== BREADCRUMB ===== -->
+  <div style="display:flex;align-items:center;gap:13px;padding:15px 26px;background:#f6f7f8;font-size:18px;white-space:nowrap;overflow-x:auto">
+    <a href="#">Student</a><span style="color:#b9bfc6">•</span>
+    <a href="#">Registration</a><span style="color:#b9bfc6">•</span>
+    <a href="#">Select a Term</a><span style="color:#b9bfc6">•</span>
+    <a href="#">Select A Plan</a><span style="color:#b9bfc6">•</span>
+    <span style="color:#2456a6">Plan Ahead</span>
+  </div>
+  <div style="padding:6px 26px 18px;background:#f6f7f8;border-bottom:1px solid #dfe3e7">
+    <div style="font-size:30px;font-weight:400">Plan Ahead</div>
+  </div>
+
+  <!-- ================= WIZARD VIEW ================= -->
+  <sc-if value="{{ isWizard }}" hint-placeholder-val="{{ true }}">
+  <div style="flex:1;display:flex;justify-content:center;align-items:flex-start;padding:34px 26px 60px">
+    <div style="width:100%;max-width:760px">
+
+      <!-- tab -->
+      <div style="display:flex"><div style="background:#2f5aa8;color:#fff;font-size:15px;font-weight:500;padding:9px 22px;border-radius:7px 7px 0 0;white-space:nowrap">Personalize My Plan</div></div>
+
+      <div style="border:1px solid #b9c4d0;border-top:3px solid #2f5aa8;border-radius:0 8px 8px 8px;background:#fff;padding:28px 30px 24px;box-shadow:0 1px 3px rgba(0,0,0,.06)">
+
+        <!-- step rail -->
+        <div style="display:flex;align-items:center;gap:0;margin-bottom:6px">
+          <sc-for list="{{ steps }}" as="s" hint-placeholder-count="3">
+            <div style="display:flex;align-items:center;gap:10px">
+              <div style="{{ s.dotStyle }}">{{ s.n }}</div>
+              <span style="{{ s.labelStyle }}">{{ s.label }}</span>
+              <sc-if value="{{ s.bar }}" hint-placeholder-val="{{ true }}"><div style="width:44px;height:2px;background:#d6dbe0;margin:0 14px"></div></sc-if>
+            </div>
+          </sc-for>
+        </div>
+
+        <div style="border-top:1px solid #eceef1;margin:14px 0 22px"></div>
+
+        <!-- STEP 1 · interests -->
+        <sc-if value="{{ onStep1 }}" hint-placeholder-val="{{ true }}">
+          <div style="font-size:22px;font-weight:500;margin-bottom:4px">What are you most interested in?</div>
+          <div style="font-size:15px;color:#5c6670;margin-bottom:20px">Pick a few — we'll highlight courses on your roadmap that fit. You can change this anytime.</div>
+          <div style="display:flex;flex-wrap:wrap;gap:11px">
+            <sc-for list="{{ interestChips }}" as="c" hint-placeholder-count="8">
+              <div onClick="{{ c.onToggle }}" style="{{ c.style }}">{{ c.label }}</div>
+            </sc-for>
+          </div>
+        </sc-if>
+
+        <!-- STEP 2 · time budget -->
+        <sc-if value="{{ onStep2 }}" hint-placeholder-val="{{ false }}">
+          <div style="font-size:22px;font-weight:500;margin-bottom:4px">How much time can you give school each week?</div>
+          <div style="font-size:15px;color:#5c6670;margin-bottom:8px">Rough is fine. Course workloads are <b>student-reported estimates</b>, not a promise from instructors — we use your budget only to flag terms that may run heavy.</div>
+          <div style="display:flex;flex-direction:column;gap:12px;margin-top:18px">
+            <sc-for list="{{ budgetOpts }}" as="b" hint-placeholder-count="3">
+              <div onClick="{{ b.onPick }}" style="{{ b.style }}">
+                <div style="width:20px;height:20px;border-radius:50%;border:2px solid {{ b.dot }};flex:none;display:flex;align-items:center;justify-content:center"><div style="{{ b.dotFill }}"></div></div>
+                <div><div style="font-size:16px;font-weight:500">{{ b.title }}</div><div style="font-size:13.5px;color:#6b747d">{{ b.desc }}</div></div>
+              </div>
+            </sc-for>
+          </div>
+        </sc-if>
+
+        <!-- STEP 3 · courses per term -->
+        <sc-if value="{{ onStep3 }}" hint-placeholder-val="{{ false }}">
+          <div style="font-size:22px;font-weight:500;margin-bottom:4px">How many courses per term?</div>
+          <div style="font-size:15px;color:#5c6670;margin-bottom:18px">This shapes how we read your term's combined load against your weekly budget.</div>
+          <div style="display:flex;gap:14px">
+            <sc-for list="{{ perTermOpts }}" as="p" hint-placeholder-count="3">
+              <div onClick="{{ p.onPick }}" style="{{ p.style }}">
+                <div style="font-size:34px;font-weight:700;color:{{ p.num }}">{{ p.n }}</div>
+                <div style="font-size:14px;color:#6b747d;margin-top:2px">{{ p.label }}</div>
+              </div>
+            </sc-for>
+          </div>
+          <div style="margin-top:22px;background:#f4f7fb;border:1px solid #d5e0ee;border-radius:8px;padding:14px 16px;font-size:14px;color:#3a4653">
+            <b>Your plan setup:</b> {{ summaryLine }}
+          </div>
+        </sc-if>
+
+        <!-- footer -->
+        <div style="display:flex;align-items:center;margin-top:28px;padding-top:18px;border-top:1px solid #eceef1">
+          <div onClick="{{ onBack }}" style="{{ backStyle }}">‹ Back</div>
+          <a href="#" onClick="{{ onSkip }}" style="margin-left:16px;font-size:14px;color:#6b747d">Skip — use defaults</a>
+          <div onClick="{{ onNext }}" style="margin-left:auto;background:linear-gradient(180deg,#7fae2f,#5f8a1f);border:1px solid #4c7017;color:#fff;font-size:15px;font-weight:500;padding:10px 26px;border-radius:6px;cursor:pointer;box-shadow:0 1px 2px rgba(0,0,0,.15)">{{ nextLabel }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  </sc-if>
+
+  <!-- ================= ROADMAP VIEW ================= -->
+  <sc-if value="{{ isRoadmap }}" hint-placeholder-val="{{ false }}">
+  <div style="flex:1;display:flex;flex-direction:column;min-height:0">
+
+    <!-- specialization tabs -->
+    <div style="display:flex;gap:8px;padding:14px 26px 0;background:#f6f7f8;flex-wrap:wrap;align-items:flex-end">
+      <span class="mono" style="font-size:12px;color:#7a828b;margin-right:6px;padding-bottom:8px">specialization</span>
+      <span style="padding:9px 16px;border:1px solid #b9c4d0;border-bottom:3px solid #2f5aa8;border-radius:7px 7px 0 0;background:#fff;font-size:15px;font-weight:500;white-space:nowrap">Human-Computer Interaction</span>
+      <span style="padding:8px 15px;border:1px solid #cdd4db;border-radius:7px 7px 0 0;background:#eef1f4;color:#4a535c;font-size:15px;cursor:pointer">Computational Perception &amp; Robotics</span>
+      <span style="padding:8px 15px;border:1px solid #cdd4db;border-radius:7px 7px 0 0;background:#eef1f4;color:#4a535c;font-size:15px;cursor:pointer">Computing Systems</span>
+      <span style="padding:8px 15px;border:1px solid #cdd4db;border-radius:7px 7px 0 0;background:#eef1f4;color:#4a535c;font-size:15px;cursor:pointer">Interactive Intelligence</span>
+      <span style="padding:8px 15px;border:1px solid #cdd4db;border-radius:7px 7px 0 0;background:#eef1f4;color:#4a535c;font-size:15px;cursor:pointer">Machine Learning</span>
+    </div>
+
+    <div style="flex:1;display:flex;border-top:1px solid #b9c4d0;background:#fff;min-height:0">
+
+      <!-- ===== TRAIL ===== -->
+      <div style="flex:1;position:relative;overflow-y:auto;padding:20px 0 46px">
+
+        <!-- legend + prefs -->
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:0 30px 4px;flex-wrap:wrap;gap:10px">
+          <div style="display:flex;gap:7px;font-size:12px;flex-wrap:wrap;align-items:center;flex:1">
+            <span style="font-size:9px;font-weight:700;letter-spacing:.5px;color:#2f7d32;border:1px solid #2f7d32;border-radius:4px;padding:2px 6px;text-transform:uppercase">Completed</span>
+            <span style="font-size:9px;font-weight:700;letter-spacing:.5px;color:#2f5aa8;border:1px solid #2f5aa8;border-radius:4px;padding:2px 6px;text-transform:uppercase">Enrolled</span>
+            <span style="font-size:9px;font-weight:700;letter-spacing:.5px;color:#8a6d00;border:1px solid #8a6d00;border-radius:4px;padding:2px 6px;text-transform:uppercase">Recommended</span>
+            <span style="font-size:9px;font-weight:700;letter-spacing:.5px;color:#b23b3b;border:1px solid #b23b3b;border-radius:4px;padding:2px 6px;text-transform:uppercase">Low fit</span>
+            <span style="font-size:9px;font-weight:700;letter-spacing:.5px;color:#5a5a5a;border:1px solid #5a5a5a;border-radius:4px;padding:2px 6px;text-transform:uppercase">Available</span>
+            <span style="font-size:9px;font-weight:700;letter-spacing:.5px;color:#8a6f00;border:1px solid #8a6f00;border-radius:4px;padding:2px 6px;text-transform:uppercase">Locked</span>
+          </div>
+          <a href="#" onClick="{{ onEditPrefs }}" style="font-size:13px;white-space:nowrap;flex:none">✎ Edit my preferences</a>
+        </div>
+
+        <!-- spine -->
+        <div style="position:absolute;left:50%;top:112px;bottom:46px;width:3px;background:repeating-linear-gradient(#2f5aa8 0 8px,transparent 8px 15px);transform:translateX(-50%);pointer-events:none"></div>
+
+        <!-- progress -->
+        <div style="position:relative;display:flex;justify-content:center;margin:12px 0 30px">
+          <div style="background:#003057;color:#fff;padding:11px 24px;border-radius:12px;box-shadow:0 2px 5px rgba(0,0,0,.2);text-align:center">
+            <div style="font-size:15px;font-weight:700">Your progress · {{ hrsLabel }}</div>
+            <div style="height:9px;width:240px;border:1.5px solid #B3A369;border-radius:5px;margin-top:7px;overflow:hidden;background:rgba(255,255,255,.12)"><div style="height:100%;background:#B3A369;width:{{ progressPct }}"></div></div>
+            <div class="mono" style="font-size:11px;opacity:.8;margin-top:6px">3 prior courses done · CS 6750 in progress</div>
+          </div>
+        </div>
+
+        <!-- CORE -->
+        <div style="position:relative;margin-bottom:32px">
+          <div style="display:flex;justify-content:center"><div class="mono" style="background:#fff;border:2px solid #2f5aa8;color:#2f5aa8;font-size:12px;font-weight:700;padding:6px 16px;border-radius:15px">CORE · 6 HRS · BOTH REQUIRED</div></div>
+          <div style="display:flex;justify-content:center;gap:36px;padding:18px 16px 0">
+            <sc-for list="{{ core }}" as="c" hint-placeholder-count="2"><div style="{{ c.cardStyle }}" onClick="{{ c.onSelect }}">
+              <sc-if value="{{ c.plannedTick }}" hint-placeholder-val="{{ false }}"><span class="mono" style="position:absolute;top:-9px;left:10px;background:#003057;color:#fff;font-size:8px;padding:2px 6px;border-radius:3px">IN PLAN</span></sc-if>
+              <div><span style="font-size:14px;font-weight:700;white-space:nowrap">{{ c.code }}</span><span style="{{ c.badgeStyle }}">{{ c.badge }}</span></div>
+              <div style="font-size:12px;color:#555;line-height:1.2;margin-top:2px">{{ c.title }}</div>
+              <sc-if value="{{ c.sub }}" hint-placeholder-val=""><div class="mono" style="font-size:9px;color:#8a6d00;margin-top:3px">{{ c.sub }}</div></sc-if>
+              <sc-if value="{{ c.hasLoad }}" hint-placeholder-val="{{ true }}"><div style="{{ c.loadRow }}"><span style="{{ c.bandStyle }}">{{ c.bandLabel }}</span><span class="mono" style="font-size:9.5px;color:#8a929b">{{ c.range }}</span><sc-if value="{{ c.over }}" hint-placeholder-val="{{ false }}"><span class="mono" style="font-size:9px;color:#b23b3b;font-weight:700;margin-left:auto">▲ over budget</span></sc-if></div></sc-if>
+            </div></sc-for>
+          </div>
+        </div>
+
+        <!-- ELECTIVES -->
+        <div style="position:relative;margin-bottom:32px">
+          <div style="display:flex;justify-content:center"><div class="mono" style="background:#fff;border:2px solid #2f5aa8;color:#2f5aa8;font-size:12px;font-weight:700;padding:6px 16px;border-radius:15px">ELECTIVES · 9 HRS · PICK 3 (≥1 FROM EACH SUB-AREA)</div></div>
+          <div style="display:grid;grid-template-columns:repeat(2,minmax(0,250px));justify-content:center;gap:0 48px;padding:20px 12px 0;align-items:start">
+            <div style="display:flex;flex-direction:column;gap:12px">
+              <div class="mono" style="font-size:10px;color:#2f5aa8;font-weight:700;text-align:right;border-right:2px solid #2f5aa8;padding-right:9px">◀ DESIGN &amp; EVALUATION</div>
+              <sc-for list="{{ areaA }}" as="c" hint-placeholder-count="6"><div style="{{ c.cardStyle }}" onClick="{{ c.onSelect }}">
+                <sc-if value="{{ c.plannedTick }}" hint-placeholder-val="{{ false }}"><span class="mono" style="position:absolute;top:-9px;right:10px;background:#003057;color:#fff;font-size:8px;padding:2px 6px;border-radius:3px">IN PLAN</span></sc-if>
+                <div><span style="font-size:14px;font-weight:700;white-space:nowrap">{{ c.code }}</span><span style="{{ c.badgeStyle }}">{{ c.badge }}</span></div>
+                <div style="font-size:11px;color:#555;line-height:1.15;margin-top:2px">{{ c.title }}</div>
+                <sc-if value="{{ c.hasLoad }}" hint-placeholder-val="{{ true }}"><div style="{{ c.loadRow }}"><span style="{{ c.bandStyle }}">{{ c.bandLabel }}</span><span class="mono" style="font-size:9.5px;color:#8a929b">{{ c.range }}</span><sc-if value="{{ c.over }}" hint-placeholder-val="{{ false }}"><span class="mono" style="font-size:9px;color:#b23b3b;font-weight:700;margin-left:auto">▲ over budget</span></sc-if></div></sc-if>
+              </div></sc-for>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:12px">
+              <div class="mono" style="font-size:10px;color:#2f5aa8;font-weight:700;border-left:2px solid #2f5aa8;padding-left:9px">INTERACTIVE TECHNOLOGY ▶</div>
+              <sc-for list="{{ areaB }}" as="c" hint-placeholder-count="6"><div style="{{ c.cardStyle }}" onClick="{{ c.onSelect }}">
+                <sc-if value="{{ c.plannedTick }}" hint-placeholder-val="{{ false }}"><span class="mono" style="position:absolute;top:-9px;right:10px;background:#003057;color:#fff;font-size:8px;padding:2px 6px;border-radius:3px">IN PLAN</span></sc-if>
+                <div><span style="font-size:14px;font-weight:700;white-space:nowrap">{{ c.code }}</span><span style="{{ c.badgeStyle }}">{{ c.badge }}</span></div>
+                <div style="font-size:11px;color:#555;line-height:1.15;margin-top:2px">{{ c.title }}</div>
+                <sc-if value="{{ c.hasLoad }}" hint-placeholder-val="{{ true }}"><div style="{{ c.loadRow }}"><span style="{{ c.bandStyle }}">{{ c.bandLabel }}</span><span class="mono" style="font-size:9.5px;color:#8a929b">{{ c.range }}</span><sc-if value="{{ c.over }}" hint-placeholder-val="{{ false }}"><span class="mono" style="font-size:9px;color:#b23b3b;font-weight:700;margin-left:auto">▲ over budget</span></sc-if></div></sc-if>
+              </div></sc-for>
+            </div>
+          </div>
+        </div>
+
+        <!-- FREE -->
+        <div style="position:relative;margin-bottom:30px">
+          <div style="display:flex;justify-content:center"><div class="mono" style="background:#fff;border:2px solid #2f5aa8;color:#2f5aa8;font-size:12px;font-weight:700;padding:6px 16px;border-radius:15px">FREE ELECTIVES · ANY CS COURSE · INCLUDES PRIOR COURSEWORK</div></div>
+          <div style="display:grid;grid-template-columns:repeat(2,222px);justify-content:center;gap:16px 48px;padding:18px 16px 0">
+            <sc-for list="{{ free }}" as="c" hint-placeholder-count="3"><div style="{{ c.cardStyle }}" onClick="{{ c.onSelect }}">
+              <sc-if value="{{ c.plannedTick }}" hint-placeholder-val="{{ false }}"><span class="mono" style="position:absolute;top:-9px;right:10px;background:#003057;color:#fff;font-size:8px;padding:2px 6px;border-radius:3px">IN PLAN</span></sc-if>
+              <div><span style="font-size:14px;font-weight:700;white-space:nowrap">{{ c.code }}</span><span style="{{ c.badgeStyle }}">{{ c.badge }}</span></div>
+              <div style="font-size:11px;color:#555;line-height:1.15;margin-top:2px">{{ c.title }}</div>
+              <sc-if value="{{ c.hasLoad }}" hint-placeholder-val="{{ true }}"><div style="{{ c.loadRow }}"><span style="{{ c.bandStyle }}">{{ c.bandLabel }}</span><span class="mono" style="font-size:9.5px;color:#8a929b">{{ c.range }}</span><sc-if value="{{ c.over }}" hint-placeholder-val="{{ false }}"><span class="mono" style="font-size:9px;color:#b23b3b;font-weight:700;margin-left:auto">▲ over budget</span></sc-if></div></sc-if>
+            </div></sc-for>
+          </div>
+        </div>
+
+        <div style="position:relative;display:flex;justify-content:center"><div style="background:#B3A369;color:#1a1a1a;font-size:14px;font-weight:700;padding:10px 24px;border-radius:12px;box-shadow:0 2px 5px rgba(0,0,0,.15)">🎓 HCI specialization complete</div></div>
+      </div>
+
+      <!-- ===== RIGHT COLUMN ===== -->
+      <div style="width:360px;flex:none;border-left:1px solid #b9c4d0;background:#f7f8fa;overflow-y:auto;padding:18px">
+
+        <!-- TERM SUMMARY (star feature) -->
+        <div style="border:1px solid #d5e0ee;border-top:3px solid #2f5aa8;border-radius:8px;background:#fff;padding:15px 16px;box-shadow:0 1px 3px rgba(0,0,0,.05)">
+          <div style="display:flex;align-items:center;justify-content:space-between">
+            <div class="mono" style="font-size:10px;color:#7a828b;letter-spacing:.5px">YOUR PLANNED TERM · FALL 2026</div>
+            <span style="font-size:11px;color:#7a828b">{{ ts.count }}</span>
+          </div>
+
+          <sc-if value="{{ ts.hasPlan }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;align-items:baseline;gap:9px;margin-top:9px">
+              <span style="{{ ts.bandStyle }}">{{ ts.bandLabel }}</span>
+              <span style="font-size:20px;font-weight:700;color:#1f2328">{{ ts.combined }}</span>
+              <span style="font-size:12px;color:#7a828b">combined</span>
+            </div>
+            <div style="{{ ts.verdictStyle }}">{{ ts.verdict }}</div>
+            <div style="font-size:12px;color:#7a828b;margin-top:8px">{{ ts.budgetLine }}</div>
+
+            <div style="border-top:1px solid #eceef1;margin:12px 0 10px"></div>
+            <div style="display:flex;flex-direction:column;gap:8px">
+              <sc-for list="{{ ts.items }}" as="i" hint-placeholder-count="2">
+                <div style="display:flex;align-items:center;gap:9px">
+                  <span style="font-size:12.5px;font-weight:700;width:64px;flex:none">{{ i.code }}</span>
+                  <span style="font-size:12px;color:#5c6670;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ i.title }}</span>
+                  <span style="{{ i.bandStyle }}">{{ i.band }}</span>
+                </div>
+              </sc-for>
+            </div>
+
+            <sc-if value="{{ ts.hasCaution }}" hint-placeholder-val="{{ false }}">
+              <div style="margin-top:12px;background:#fbf6e6;border:1px solid #e6d79a;border-radius:7px;padding:10px 12px">
+                <sc-for list="{{ ts.cautions }}" as="w" hint-placeholder-count="1"><div style="font-size:12.5px;color:#6b5a12;line-height:1.4;margin-bottom:5px">⚠ {{ w }}</div></sc-for>
+              </div>
+            </sc-if>
+            <div class="mono" style="font-size:10px;color:#98a0a8;margin-top:10px">{{ ts.confidence }}</div>
+          </sc-if>
+
+          <sc-if value="{{ ts.empty }}" hint-placeholder-val="{{ true }}">
+            <div style="font-size:13px;color:#7a828b;line-height:1.5;margin-top:9px">No courses added yet. Add courses from the roadmap and we'll estimate this term's combined workload against your budget.</div>
+            <div style="font-size:12px;color:#98a0a8;margin-top:8px">{{ ts.budgetLine }}</div>
+          </sc-if>
+        </div>
+
+        <!-- SELECTED COURSE -->
+        <div style="border:1px solid #dfe3e7;border-radius:8px;background:#fff;padding:16px;margin-top:14px">
+          <div class="mono" style="font-size:10px;color:#7a828b;letter-spacing:.5px">SELECTED COURSE</div>
+          <div style="font-size:22px;font-weight:700;color:#003057;margin-top:3px">{{ sel.code }}</div>
+          <div style="font-size:14px;color:#333;line-height:1.25">{{ sel.title }}</div>
+          <div class="mono" style="font-size:11px;color:#7a828b;margin-top:5px">{{ sel.meta }}</div>
+
+          <div style="{{ sel.fitStyle }}">{{ sel.fitLabel }}</div>
+
+          <div class="mono" style="font-size:10px;color:#7a828b;margin-top:16px">WHY THIS RATING</div>
+          <ul style="margin:6px 0 0;padding-left:18px;font-size:13px;line-height:1.5;color:#333">
+            <sc-for list="{{ sel.why }}" as="w" hint-placeholder-count="3"><li>{{ w }}</li></sc-for>
+          </ul>
+
+          <!-- workload block -->
+          <div style="margin-top:14px;background:#f7f8fa;border:1px solid #e4e8ec;border-radius:7px;padding:11px 12px">
+            <div style="display:flex;align-items:center;gap:9px">
+              <span style="{{ sel.bandStyle }}">{{ sel.bandLabel }}</span>
+              <span style="font-size:15px;font-weight:700">{{ sel.workload }}</span>
+            </div>
+            <div style="font-size:11.5px;color:#7a828b;margin-top:6px;line-height:1.4">{{ sel.workloadNote }}</div>
+            <sc-if value="{{ sel.showBudget }}" hint-placeholder-val="{{ false }}"><div style="{{ sel.budgetStyle }}">{{ sel.budgetVerdict }}</div></sc-if>
+          </div>
+
+          <div style="display:flex;gap:12px;margin-top:14px">
+            <div style="flex:1"><div class="mono" style="font-size:10px;color:#7a828b">PREREQS</div><div style="font-size:12.5px;color:#333;margin-top:3px;line-height:1.3">{{ sel.prereq }}</div></div>
+            <div style="flex:1"><div class="mono" style="font-size:10px;color:#7a828b">AVAILABILITY</div><div style="font-size:12.5px;color:#333;margin-top:3px;line-height:1.3">{{ sel.nextTerm }}</div></div>
+          </div>
+
+          <div style="display:flex;gap:10px;margin-top:18px">
+            <div onClick="{{ sel.onPlan }}" style="{{ sel.planBtnStyle }}">{{ sel.planLabel }}</div>
+            <div style="flex:1;text-align:center;border:1px solid #2456a6;color:#2456a6;border-radius:6px;padding:9px 0;font-size:13px;cursor:pointer">Reviews ↗</div>
+          </div>
+        </div>
+
+        <!-- save -->
+        <div style="display:flex;justify-content:flex-end;margin-top:16px">
+          <div style="background:#3a4149;color:#fff;font-size:14px;font-weight:500;padding:10px 24px;border-radius:6px;cursor:pointer;box-shadow:0 1px 2px rgba(0,0,0,.2)">Save Plan</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  </sc-if>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;startView&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;default&quot;:&quot;wizard&quot;,&quot;options&quot;:[&quot;wizard&quot;,&quot;roadmap&quot;],&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Demo&quot;}}">
+class Component extends DCLogic {
+  state = {
+    view: 'wizard', step: 1,
+    interests: { ux:true, health:true },
+    budget: 'mid', perTerm: 2,
+    sel: 'CS6795', planned: {}
+  };
+
+  INTERESTS = [
+    {k:'ux',label:'UX research & evaluation'}, {k:'design',label:'Design & prototyping'},
+    {k:'health',label:'Health technology'}, {k:'games',label:'Games & play'},
+    {k:'edu',label:'Educational technology'}, {k:'dataviz',label:'Data & visualization'},
+    {k:'ai',label:'AI & machine learning'}, {k:'systems',label:'Systems & software eng.'},
+  ];
+  BUDGETS = [
+    {k:'light',title:'Up to 15 hrs / week',desc:'Lighter terms, usually one course at a time.',cap:15},
+    {k:'mid',title:'15 – 25 hrs / week',desc:'A typical two-course term for most OMSCS students.',cap:25},
+    {k:'heavy',title:'25+ hrs / week',desc:'Heavier load — faster pace, or a demanding pairing.',cap:40},
+  ];
+  PERTERM = [ {n:1,label:'one course'}, {n:2,label:'two courses'}, {n:3,label:'three courses'} ];
+
+  COURSES = {
+    CS6200:{area:'free',title:'Grad Intro to Operating Systems',hrs:3,st:'completed',grade:'B',tags:['systems'],lo:13,hi:17,mid:15,n:210,prereq:'None',nextTerm:'Completed Fall 2024',why:['Completed with a grade of B','Solid systems foundation']},
+    CS6035:{area:'free',title:'Introduction to Information Security',hrs:3,st:'completed',grade:'A',tags:['systems'],lo:8,hi:12,mid:10,n:180,prereq:'None',nextTerm:'Completed Spring 2025',why:['Completed with a grade of A','Strong project-based performance']},
+    CS7638:{area:'free',title:'AI Techniques for Robotics',hrs:3,st:'completed',grade:'C',tags:['ai'],lo:11,hi:15,mid:13,n:140,prereq:'None',nextTerm:'Completed Fall 2025',why:['Completed with a grade of C','Weaker AI performance — caution for AI-heavy electives']},
+    CS6750:{area:'core',title:'Human-Computer Interaction',hrs:3,st:'inprogress',tags:['ux'],lo:11,hi:14,mid:13,n:320,prereq:'None',nextTerm:'Enrolled now · Summer 2026',why:['Required core course','You are currently enrolled','On track — assignments on time']},
+    CS7470:{area:'core',title:'Mobile & Ubiquitous Computing',hrs:3,st:'recommended',sub:'core option · or CS 6456 (campus only)',tags:['systems'],lo:10,hi:13,mid:12,n:95,prereq:'Programming maturity ✓',nextTerm:'Offered Fall 2026 · seats open',why:['Satisfies the 2nd core requirement','Offered online — CS 6456 is campus-only','Builds on your systems background (CS 6200: B)']},
+    CS6010:{area:'A',title:'Principles of Design',hrs:3,st:'unavailable',tags:['design','ux']},
+    CS6435:{area:'A',title:'Digital Health Equity',hrs:3,st:'available',tags:['health'],lo:8,hi:11,mid:10,n:42,prereq:'None',nextTerm:'Offered Spring 2027',why:['Available online, no hard prereqs','Counts toward Design & Evaluation']},
+    CS6455:{area:'A',title:'User Interface Design & Evaluation',hrs:3,st:'locked',tags:['ux','design'],mid:12,prereq:'CS 6456 (campus-only)',nextTerm:'On-campus only',why:['Requires CS 6456 (not offered online)','Prereq chain cannot be completed via OMSCS']},
+    CS6457:{area:'A',title:'Video Game Design',hrs:3,st:'available',tags:['games','design'],lo:13,hi:18,mid:15,n:110,team:true,prereq:'Strong programming',nextTerm:'Offered Fall 2026',why:['Available online','Heavier team-based workload','Counts toward Design & Evaluation']},
+    CS6460:{area:'A',title:'Educational Technology',hrs:3,st:'available',tags:['edu'],lo:7,hi:10,mid:9,n:260,prereq:'None',nextTerm:'Offered every term',why:['Available online','Light, self-directed project','Counts toward Design & Evaluation']},
+    CS6795:{area:'A',title:'Introduction to Cognitive Science',hrs:3,st:'recommended',tags:['ux'],lo:8,hi:12,mid:10,n:150,prereq:'None',nextTerm:'Offered Fall 2026 · seats open',why:['All prerequisites met','Pairs naturally with CS 6750','Matches your interest: UX research','Students with your profile average A−']},
+    CS6440:{area:'B',title:'Introduction to Health Informatics',hrs:3,st:'available',tags:['health','dataviz'],lo:9,hi:13,mid:11,n:200,team:true,prereq:'None',nextTerm:'Offered every term',why:['Available online','Satisfies Interactive Technology','Strong peer ratings for HCI students']},
+    CS6730:{area:'B',title:'Data Visualization',hrs:3,st:'unavailable',tags:['dataviz']},
+    CS7632:{area:'B',title:'Game AI',hrs:3,st:'discouraged',tags:['games','ai'],lo:15,hi:20,mid:16,n:90,prereq:'Game AI concepts ✗',nextTerm:'Offered Spring 2027',why:['Assumes strong AI background — you earned a C in CS 7638','Heavy 15+ hr/wk with weekly peer reviews','Does not match your UX-research interest']},
+    CS6300:{area:'free',title:'Software Development Process',hrs:3,st:'recommended',tags:['systems'],lo:10,hi:14,mid:12,n:400,prereq:'None',nextTerm:'Offered every term',why:['Counts as a free elective','Strongly rated for MSCS students','Broadly useful engineering skills']},
+    CS6310:{area:'free',title:'Software Architecture & Design',hrs:3,st:'available',tags:['systems'],lo:11,hi:15,mid:13,n:170,prereq:'CS 6300 recommended',nextTerm:'Offered Fall / Spring',why:['Counts as a free elective','Pairs well with CS 6300']},
+    CS7641:{area:'free',title:'Machine Learning',hrs:3,st:'available',tags:['ai'],lo:16,hi:22,mid:18,n:380,prereq:'Linear algebra, probability',nextTerm:'Offered every term',why:['Counts as a free elective','Heavy math + workload — plan the term carefully']},
+  };
+
+  STYLES = {
+    completed:{border:'2px solid #2f7d32',background:'#e9f4ea'}, inprogress:{border:'2px solid #2f5aa8',background:'#fff'},
+    recommended:{border:'2px solid #B3A369',background:'#f7f0d8'}, discouraged:{border:'2px solid #b23b3b',background:'#fff'},
+    available:{border:'1.5px solid #a2aab2',background:'#fff'}, locked:{border:'1.5px solid #bbb',background:'#fdfdfb',opacity:.6},
+    unavailable:{border:'1.5px solid #cbcbcb',background:'#f4f4f2',opacity:.58},
+  };
+  BADGE = {
+    completed:{t:'COMPLETED',c:'#2f7d32'}, inprogress:{t:'ENROLLED',c:'#2f5aa8'}, recommended:{t:'RECOMMENDED',c:'#8a6d00'},
+    discouraged:{t:'LOW FIT',c:'#b23b3b'}, available:{t:'AVAILABLE',c:'#5a5a5a'}, locked:{t:'LOCKED',c:'#8a6f00'}, unavailable:{t:'ON-CAMPUS',c:'#8a6f00'},
+  };
+  FIT = {
+    inprogress:{t:'⏳ In progress',bg:'#eef3fb',bd:'#2f5aa8',fg:'#2f5aa8'},
+    recommended:{t:'★ Recommended for you',bg:'#f7f0d8',bd:'#B3A369',fg:'#8a6d00'},
+    discouraged:{t:'⚠ Discouraged',bg:'#fbe6e6',bd:'#b23b3b',fg:'#8a1f1f'},
+    locked:{t:'🔒 Locked — prereq unavailable',bg:'#f0efe9',bd:'#999',fg:'#666'},
+    unavailable:{t:'On-campus only',bg:'#f0efe9',bd:'#bbb',fg:'#666'},
+    available:{t:'Available',bg:'#eef1f4',bd:'#8a94a0',fg:'#3a4653'},
+  };
+
+  bandOf(mid){ if(mid==null) return null; if(mid<10) return 'Light'; if(mid<15) return 'Moderate'; return 'Heavy'; }
+  bandColors(b){ return b==='Light'?{fg:'#2f7d32',bg:'#e9f4ea',bd:'#bcdcbf'}:b==='Heavy'?{fg:'#b23b3b',bg:'#fbe9e9',bd:'#e6bcbc'}:{fg:'#8a6d00',bg:'#f7f0d8',bd:'#e2d296'}; }
+  bandChip(b,small){ const c=this.bandColors(b); return {display:'inline-block',fontSize:small?'9px':'11px',fontWeight:700,letterSpacing:'.4px',textTransform:'uppercase',color:c.fg,background:c.bg,border:'1px solid '+c.bd,borderRadius:'4px',padding:small?'1px 5px':'2px 8px'}; }
+
+  perCourseCap(){ const cap=this.BUDGETS.find(b=>b.k===this.state.budget).cap; return cap/this.state.perTerm; }
+  matches(c){ return (c.tags||[]).some(t=>this.state.interests[t]); }
+  effStatus(code){ const c=this.COURSES[code]; if(['completed','inprogress','locked','unavailable','discouraged'].includes(c.st)) return c.st; return (c.st==='available' && this.matches(c)) ? 'recommended' : c.st; }
+  selectable(code){ return !['completed','inprogress','locked','unavailable'].includes(this.COURSES[code].st); }
+
+  select(code){ return ()=>this.setState({sel:code}); }
+  togglePlan(code){ return ()=>this.setState(s=>{const p={...s.planned}; if(p[code])delete p[code]; else p[code]=true; return {planned:p};}); }
+
+  node(code){
+    const c=this.COURSES[code]; const eff=this.effStatus(code);
+    const base={boxSizing:'border-box',display:'block',padding:'8px 11px',borderRadius:'8px',boxShadow:'0 1px 3px rgba(0,0,0,.12)',cursor:'pointer',position:'relative',background:'#fff',width:code in {CS6750:1,CS7470:1}?'218px':'222px'};
+    const style=Object.assign({},base,this.STYLES[eff]);
+    if(this.state.sel===code) style.boxShadow='0 0 0 3px rgba(47,90,168,.4),0 1px 3px rgba(0,0,0,.12)';
+    const b=this.BADGE[eff];
+    const badgeText=(eff==='completed'&&c.grade)?('COMPLETED · '+c.grade):b.t;
+    const tagStyle={position:'absolute',top:'8px',right:'10px',fontSize:'8.5px',fontWeight:700,letterSpacing:'.5px',color:b.c,whiteSpace:'nowrap',border:'1px solid '+b.c,borderRadius:'4px',padding:'1px 5px',textTransform:'uppercase'};
+    const band=this.bandOf(c.mid); const hasLoad=!!band && c.st!=='unavailable' && c.st!=='locked';
+    const over=this.selectable(code) && c.mid!=null && c.mid>this.perCourseCap();
+    return { code:code.replace(/^CS/,'CS\u00A0'), title:c.title, sub:c.sub||'',
+      cardStyle:style, plannedTick:!!this.state.planned[code], badge:badgeText, badgeStyle:tagStyle,
+      hasLoad, bandLabel:band||'', range:c.lo?('~'+c.lo+'–'+c.hi+' hr/wk'):'', bandStyle:this.bandChip(band,true),
+      loadRow:{display:'flex',alignItems:'center',gap:'8px',marginTop:'7px',paddingTop:'6px',borderTop:'1px solid #eee'},
+      over, onSelect:this.select(code) };
+  }
+
+  // ---- wizard steps ----
+  wizardVals(){
+    const step=this.state.step;
+    const steps=[{n:1,label:'Interests'},{n:2,label:'Time budget'},{n:3,label:'Courses / term'}].map((s,i)=>{
+      const active=s.n===step, done=s.n<step;
+      return { n:s.n, label:s.label, bar:i<2,
+        dotStyle:{width:'26px',height:'26px',borderRadius:'50%',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'13px',fontWeight:700,flex:'none',color:active||done?'#fff':'#8a929b',background:active?'#2f5aa8':done?'#7fae2f':'#e4e8ec'},
+        labelStyle:{fontSize:'14px',fontWeight:active?700:400,color:active?'#1f2328':'#8a929b'} };
+    });
+    const interestChips=this.INTERESTS.map(it=>{ const on=!!this.state.interests[it.k];
+      return { label:it.label, onToggle:()=>this.setState(s=>({interests:Object.assign({},s.interests,{[it.k]:!s.interests[it.k]})})),
+        style:{fontSize:'14px',padding:'9px 16px',borderRadius:'20px',cursor:'pointer',border:'1.5px solid '+(on?'#2f5aa8':'#c7cfd6'),background:on?'#2f5aa8':'#fff',color:on?'#fff':'#3a4653',fontWeight:on?500:400} }; });
+    const budgetOpts=this.BUDGETS.map(b=>{ const on=this.state.budget===b.k;
+      return { title:b.title, desc:b.desc, dot:on?'#2f5aa8':'#b7bfc7', dotFill:{width:'10px',height:'10px',borderRadius:'50%',background:on?'#2f5aa8':'transparent'},
+        onPick:()=>this.setState({budget:b.k}),
+        style:{display:'flex',alignItems:'center',gap:'14px',padding:'14px 16px',borderRadius:'8px',cursor:'pointer',border:'1.5px solid '+(on?'#2f5aa8':'#d5dae0'),background:on?'#f4f7fb':'#fff'} }; });
+    const perTermOpts=this.PERTERM.map(p=>{ const on=this.state.perTerm===p.n;
+      return { n:p.n, label:p.label, num:on?'#2f5aa8':'#b0b8c0',
+        onPick:()=>this.setState({perTerm:p.n}),
+        style:{flex:1,textAlign:'center',padding:'20px 10px',borderRadius:'8px',cursor:'pointer',border:'1.5px solid '+(on?'#2f5aa8':'#d5dae0'),background:on?'#f4f7fb':'#fff'} }; });
+    const bLabel=this.BUDGETS.find(b=>b.k===this.state.budget).title;
+    const iCount=Object.values(this.state.interests).filter(Boolean).length;
+    return { steps, interestChips, budgetOpts, perTermOpts,
+      onStep1:step===1, onStep2:step===2, onStep3:step===3,
+      summaryLine:iCount+' interest'+(iCount===1?'':'s')+' · '+bLabel+' · '+this.state.perTerm+' course'+(this.state.perTerm===1?'':'s')+' per term',
+      backStyle:{fontSize:'14px',color:step===1?'#c2c8ce':'#5c6670',cursor:step===1?'default':'pointer'},
+      onBack:()=>this.setState(s=>({step:Math.max(1,s.step-1)})),
+      onSkip:()=>this.setState({view:'roadmap'}),
+      onNext:()=>this.setState(s=>s.step<3?{step:s.step+1}:{view:'roadmap'}),
+      nextLabel:step<3?'Next ›':'Build my roadmap ›' };
+  }
+
+  // ---- term summary ----
+  termSummary(){
+    const codes=Object.keys(this.state.planned).filter(k=>this.state.planned[k] && this.selectable(k));
+    const cap=this.BUDGETS.find(b=>b.k===this.state.budget).cap;
+    const budgetLine='Your budget: '+this.BUDGETS.find(b=>b.k===this.state.budget).title.replace(' / ','/')+' · '+this.state.perTerm+' course'+(this.state.perTerm===1?'':'s')+'/term';
+    if(!codes.length) return { hasPlan:false, empty:true, count:'0 courses', budgetLine };
+    const lo=codes.reduce((a,k)=>a+(this.COURSES[k].lo||0),0);
+    const hi=codes.reduce((a,k)=>a+(this.COURSES[k].hi||0),0);
+    const mid=(lo+hi)/2;
+    const band=mid<15?'Light':mid<25?'Moderate':'Heavy';
+    let vfg,vbg,vbd,verdict;
+    if(mid<=cap*0.85){vfg='#2f7d32';vbg='#e9f4ea';vbd='#bcdcbf';verdict='✓ Within your weekly budget';}
+    else if(mid<=cap){vfg='#8a6d00';vbg='#f7f0d8';vbd='#e2d296';verdict='≈ Near the top of your budget';}
+    else{vfg='#b23b3b';vbg='#fbe9e9';vbd='#e6bcbc';verdict='▲ Above the time you set — consider spreading these across terms';}
+    const cautions=[];
+    const heavyTeam=codes.filter(k=>this.COURSES[k].team||this.COURSES[k].mid>=15);
+    if(heavyTeam.length>=2) cautions.push(heavyTeam.map(k=>k.replace(/^CS/,'CS ')).join(' and ')+' are both project-heavy — students report these are demanding to take in the same term.');
+    const over=codes.filter(k=>this.COURSES[k].mid>this.perCourseCap());
+    if(over.length && mid>cap) cautions.push('Moving one course to another term would keep most weeks under your budget.');
+    const minN=Math.min(...codes.map(k=>this.COURSES[k].n||0));
+    const confidence=minN<60?'Estimates from limited data — few reports for one of these courses.':'Based on '+ (minN>=200?'200+':'100+') +' past student workload reports.';
+    return { hasPlan:true, empty:false, count:codes.length+' course'+(codes.length===1?'':'s'),
+      combined:'~'+lo+'–'+hi+' hr/wk', bandLabel:band, bandStyle:this.bandChip(band,false),
+      verdict, verdictStyle:{marginTop:'8px',display:'inline-block',fontSize:'12.5px',fontWeight:700,color:vfg,background:vbg,border:'1px solid '+vbd,borderRadius:'6px',padding:'5px 10px',lineHeight:1.3},
+      budgetLine,
+      items:codes.map(k=>{const c=this.COURSES[k];const b=this.bandOf(c.mid);return {code:k.replace(/^CS/,'CS '),title:c.title,band:b,bandStyle:this.bandChip(b,true)};}),
+      hasCaution:cautions.length>0, cautions, confidence };
+  }
+
+  renderVals(){
+    if(this.state.view==='wizard'){
+      return Object.assign({ isWizard:true, isRoadmap:false }, this.wizardVals());
+    }
+    const codes=Object.keys(this.COURSES);
+    const inArea=a=>codes.filter(k=>this.COURSES[k].area===a);
+    const selCode=this.state.sel; const c=this.COURSES[selCode]; const eff=this.effStatus(selCode);
+    const planned=!!this.state.planned[selCode];
+    const areaLabel=c.area==='core'?'Core':c.area==='A'?'Design & Evaluation':c.area==='B'?'Interactive Technology':'Free elective (any CS)';
+    const fit=this.FIT[eff]; const canPlan=this.selectable(selCode);
+    const plannedCount=Object.keys(this.state.planned).filter(k=>this.state.planned[k]&&this.selectable(k)).length;
+    const hrs=3+plannedCount*3;
+    const band=this.bandOf(c.mid);
+    const over=canPlan && c.mid!=null && c.mid>this.perCourseCap();
+
+    const sel={
+      code:selCode.replace(/^CS/,'CS '), title:c.title, meta:areaLabel+' · '+c.hrs+' hrs',
+      fitLabel:fit.t, fitStyle:{marginTop:'12px',display:'inline-block',background:fit.bg,border:'1.5px solid '+fit.bd,color:fit.fg,fontSize:'12.5px',padding:'5px 10px',borderRadius:'7px',fontWeight:700},
+      why:c.why||['Available online','Counts toward the '+areaLabel+' sub-area'],
+      prereq:c.prereq||'None listed', nextTerm:c.nextTerm||'On-campus only',
+      bandLabel:band||'—', bandStyle:band?this.bandChip(band,false):{display:'none'},
+      workload:c.lo?('~'+c.lo+'–'+c.hi+' hr/wk'):'—',
+      workloadNote:c.n?('Student-reported estimate · '+c.n+' reports. Actual load varies by background and term.'):'No workload reports yet for this course.',
+      showBudget:canPlan && c.mid!=null,
+      budgetVerdict:over?('▲ Above ~'+Math.round(this.perCourseCap())+' hr/wk per-course budget'):('✓ Fits your ~'+Math.round(this.perCourseCap())+' hr/wk per-course budget'),
+      budgetStyle:{marginTop:'8px',fontSize:'11.5px',fontWeight:700,color:over?'#b23b3b':'#2f7d32'},
+      planLabel:!canPlan?'Unavailable':planned?'✓ In your plan':'＋ Add to plan',
+      planBtnStyle:{flex:1,textAlign:'center',borderRadius:'6px',padding:'9px 0',fontSize:'13px',cursor:canPlan?'pointer':'not-allowed',border:'1.5px solid '+(canPlan?'#2456a6':'#c7c1b3'),background:!canPlan?'#efeee9':planned?'#2456a6':'#fff',color:!canPlan?'#a29c8e':planned?'#fff':'#2456a6',fontWeight:500},
+      onPlan:canPlan?this.togglePlan(selCode):(()=>{}),
+    };
+
+    return { isWizard:false, isRoadmap:true,
+      hrsLabel:hrs+' / 15 hrs', progressPct:Math.min(100,Math.round(hrs/15*100))+'%',
+      core:inArea('core').map(k=>this.node(k)), areaA:inArea('A').map(k=>this.node(k)),
+      areaB:inArea('B').map(k=>this.node(k)), free:inArea('free').map(k=>this.node(k)),
+      sel, ts:this.termSummary(),
+      onEditPrefs:()=>this.setState({view:'wizard',step:1}) };
+  }
+}
+</script>
+</body>
+</html>
