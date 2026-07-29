@@ -52,7 +52,7 @@ a{color:#2456a6;text-decoration:none}a:hover{color:#1a3f7d;text-decoration:under
     <div style="width:100%;max-width:760px">
 
       <!-- tab -->
-      <div style="display:flex"><div style="background:#2f5aa8;color:#fff;font-size:15px;font-weight:500;padding:9px 22px;border-radius:7px 7px 0 0;white-space:nowrap">Personalize My Plan</div></div>
+      <div style="display:flex"><div style="background:#2f5aa8;color:#fff;font-size:15px;font-weight:500;padding:9px 22px;border-radius:7px 7px 0 0;white-space:nowrap">Personalize My Plan · Fall 2026</div></div>
 
       <div style="border:1px solid #b9c4d0;border-top:3px solid #2f5aa8;border-radius:0 8px 8px 8px;background:#fff;padding:28px 30px 24px;box-shadow:0 1px 3px rgba(0,0,0,.06)">
 
@@ -151,7 +151,7 @@ a{color:#2456a6;text-decoration:none}a:hover{color:#1a3f7d;text-decoration:under
             <span style="font-size:9px;font-weight:700;letter-spacing:.5px;color:#5a5a5a;border:1px solid #5a5a5a;border-radius:4px;padding:2px 6px;text-transform:uppercase">Available</span>
             <span style="font-size:9px;font-weight:700;letter-spacing:.5px;color:#8a6f00;border:1px solid #8a6f00;border-radius:4px;padding:2px 6px;text-transform:uppercase">Locked</span>
           </div>
-          <a href="#" onClick="{{ onEditPrefs }}" style="font-size:13px;white-space:nowrap;flex:none">✎ Edit my preferences</a>
+          <div onClick="{{ onEditPrefs }}" style="display:flex;align-items:center;gap:6px;white-space:nowrap;flex:none;background:#fff;border:1.5px solid #2456a6;color:#2456a6;font-size:13px;font-weight:500;padding:7px 14px;border-radius:6px;cursor:pointer;box-shadow:0 1px 2px rgba(0,0,0,.06)" style-hover="background:#eef3fb">‹ Back to preferences</div>
         </div>
 
         <!-- spine -->
@@ -232,7 +232,8 @@ a{color:#2456a6;text-decoration:none}a:hover{color:#1a3f7d;text-decoration:under
           </div>
 
           <sc-if value="{{ ts.hasPlan }}" hint-placeholder-val="{{ false }}">
-            <div style="display:flex;align-items:baseline;gap:9px;margin-top:9px">
+            <div style="font-size:12px;color:#7a828b;margin-top:6px;line-height:1.4">Courses you add from the roadmap land here — this is <b>one term only</b>, not your whole degree.</div>
+            <div style="display:flex;align-items:baseline;gap:9px;margin-top:11px">
               <span style="{{ ts.bandStyle }}">{{ ts.bandLabel }}</span>
               <span onClick="{{ ts.onToggleWeekly }}" title="Show the week-by-week load" style="font-size:20px;font-weight:700;color:#2f5aa8;cursor:pointer;border-bottom:1px dashed #7d9bd0">{{ ts.combined }} {{ ts.caret }}</span>
               <span style="font-size:12px;color:#7a828b">combined</span>
@@ -271,6 +272,7 @@ a{color:#2456a6;text-decoration:none}a:hover{color:#1a3f7d;text-decoration:under
                   <span style="font-size:12.5px;font-weight:700;width:64px;flex:none">{{ i.code }}</span>
                   <span style="font-size:12px;color:#5c6670;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ i.title }}</span>
                   <span style="{{ i.bandStyle }}">{{ i.band }}</span>
+                  <span onClick="{{ i.onRemove }}" title="Remove from this term" style="flex:none;width:20px;height:20px;display:flex;align-items:center;justify-content:center;border-radius:50%;background:#f0f2f4;color:#8a929b;font-size:14px;cursor:pointer" style-hover="background:#f6dede;color:#b23b3b">×</span>
                 </div>
               </sc-for>
             </div>
@@ -280,7 +282,10 @@ a{color:#2456a6;text-decoration:none}a:hover{color:#1a3f7d;text-decoration:under
                 <sc-for list="{{ ts.cautions }}" as="w" hint-placeholder-count="1"><div style="font-size:12.5px;color:#6b5a12;line-height:1.4;margin-bottom:5px">⚠ {{ w }}</div></sc-for>
               </div>
             </sc-if>
-            <div class="mono" style="font-size:10px;color:#98a0a8;margin-top:10px">{{ ts.confidence }}</div>
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-top:10px;gap:10px">
+              <div class="mono" style="font-size:10px;color:#98a0a8;flex:1">{{ ts.confidence }}</div>
+              <a href="#" onClick="{{ ts.onClear }}" style="font-size:12px;color:#b23b3b;white-space:nowrap;flex:none">Clear term</a>
+            </div>
           </sc-if>
 
           <sc-if value="{{ ts.empty }}" hint-placeholder-val="{{ true }}">
@@ -510,14 +515,15 @@ class Component extends DCLogic {
       combined:'~'+lo+'–'+hi+' hr/wk', bandLabel:band, bandStyle:this.bandChip(band,false),
       verdict, verdictStyle:{marginTop:'8px',display:'inline-block',fontSize:'12.5px',fontWeight:700,color:vfg,background:vbg,border:'1px solid '+vbd,borderRadius:'6px',padding:'5px 10px',lineHeight:1.3},
       budgetLine,
-      items:codes.map(k=>{const c=this.COURSES[k];const b=this.bandOf(c.mid);return {code:k.replace(/^CS/,'CS '),title:c.title,band:b,bandStyle:this.bandChip(b,true)};}),
+      items:codes.map(k=>{const c=this.COURSES[k];const b=this.bandOf(c.mid);return {code:k.replace(/^CS/,'CS '),title:c.title,band:b,bandStyle:this.bandChip(b,true),onRemove:this.togglePlan(k)};}),
       hasCaution:cautions.length>0, cautions, confidence,
       weeklyOpen:this.state.showWeekly, onToggleWeekly:this.toggleWeekly(), caret:this.state.showWeekly?'▴':'▾',
       weeks, legend, overLabel:overCount?('▲ '+overCount+' wk'+(overCount===1?'':'s')+' over budget'):'',
       weeklyBlurb:'Each planned course stacked week by week. Red is where the heavy stretches overlap and the term runs past ~'+cap+' hr/wk.',
       budgetLineStyle:'position:absolute;left:0;right:0;bottom:'+budgetBottom+'px;border-top:1px dashed #d64545;pointer-events:none',
       budgetLabelStyle:'position:absolute;right:0;bottom:'+(parseFloat(budgetBottom)+2).toFixed(1)+'px;font-size:8.5px;color:#d64545;background:#fff;padding:0 2px;pointer-events:none',
-      budgetLabelText:'~'+cap+' hr/wk budget' };
+      budgetLabelText:'~'+cap+' hr/wk budget',
+      onClear:()=>this.setState({planned:{}}) };
   }
 
   renderVals(){
